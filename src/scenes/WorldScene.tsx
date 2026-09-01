@@ -614,7 +614,7 @@ function Creator({ stage, shieldRef }: { stage: StageKey; shieldRef: React.RefOb
           <mesh position={[0, 1.66, 0]} castShadow><sphereGeometry args={[0.14, 20, 20]} /><meshStandardMaterial color={skin} roughness={0.85} /></mesh>
           <mesh position={[0, 1.7, 0]}><torusGeometry args={[0.14, 0.015, 8, 24]} /><meshStandardMaterial color="#111" roughness={0.6} /></mesh>
           <mesh position={[0, 1.7, 0.13]} rotation-x={Math.PI / 2}><cylinderGeometry args={[0.035, 0.035, 0.05, 12]} /><meshStandardMaterial color="#222" metalness={0.7} roughness={0.4} /></mesh>
-          <mesh position={[0, 1.7, 0.16]}><circleGeometry args={[0.025, 12]} /><meshStandardMaterial color="#fff" emissive="#fff6d8" emissiveIntensity={1.6} /></mesh>
+          <mesh position={[0, 1.7, 0.16]} rotation-y={Math.PI}><circleGeometry args={[0.025, 12]} /><meshStandardMaterial color="#fff" emissive="#fff6d8" emissiveIntensity={0.8} side={THREE.FrontSide} /></mesh>
           <spotLight ref={lamp} position={[0, 1.7, 0.2]} target={target} angle={0.48} penumbra={0.7} intensity={110} distance={16} decay={1.3} color="#ffe2b8" castShadow shadow-mapSize={[1024, 1024]} shadow-bias={-0.0015} />
           <mesh ref={cone} position={[0, 1.5, -3.9]} rotation-x={Math.PI / 2}>
             <coneGeometry args={[1.1, 6, 24, 1, true]} />
