@@ -11,6 +11,8 @@ import { GuideOverlay } from './ui/Guide'
 import { Hud } from './ui/Hud'
 import { Panel } from './ui/Panel'
 import { Studio } from './ui/Studio'
+import { Name } from './ui/Name'
+import { net } from './engine/net'
 import { TopBar, BottomBar, LeftCol, RightCol, GlitchSlices } from './ui/Chrome'
 
 function useAudioDirector() {
@@ -32,11 +34,22 @@ function useAudioDirector() {
   }, [])
 }
 
+/** Connect once we have a name; follow the channel into its room. */
+function useNet() {
+  const named = useWorld((s) => s.named)
+  const name = useWorld((s) => s.viewer.name)
+  const worldId = useWorld((s) => s.worldId)
+  useEffect(() => { if (named) net.connect(name) }, [named, name])
+  useEffect(() => { net.setRoom(worldId ?? 'lobby') }, [worldId])
+}
+
 export default function App() {
   const screen = useWorld((s) => s.screen)
   const panel = useWorld((s) => s.panel)
+  const named = useWorld((s) => s.named)
   useRemote()
   useAudioDirector()
+  useNet()
   useEffect(() => startDirector(), [])
 
   return (
@@ -60,6 +73,7 @@ export default function App() {
         <BottomBar />
       </div>
       {screen === 'boot' && <Boot />}
+      {screen !== 'boot' && !named && <Name />}
       {screen === 'studio' && <Studio />}
       {panel !== 'none' && <Panel />}
     </>

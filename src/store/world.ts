@@ -17,7 +17,7 @@ export interface ChatMsg {
   id: number
   name: string
   text: string
-  tone?: 'system' | 'you' | 'actor'
+  tone?: 'system' | 'you' | 'actor' | 'live'
 }
 
 export interface HistoryEntry {
@@ -102,6 +102,10 @@ interface WorldState {
   reducedMotion: boolean
   muted: boolean
   glitchTick: number
+  named: boolean
+  online: number
+  connected: boolean
+  serverName: string | null
 
   // actions
   finishBoot: () => void
@@ -119,6 +123,8 @@ interface WorldState {
   togglePanel: (p: Panel) => void
   toggleMute: () => void
   glitch: () => void
+  setName: (name: string) => void
+  setNet: (p: { connected?: boolean; online?: number; serverName?: string | null }) => void
   say: (text: string) => void
   pushChat: (m: Omit<ChatMsg, 'id'>) => void
   toast: (t: Omit<Toast, 'id'>) => void
@@ -199,7 +205,7 @@ export const useWorld = create<WorldState>((set, get) => ({
   lastReward: null,
 
   viewer: {
-    name: 'you',
+    name: (typeof localStorage !== 'undefined' && localStorage.getItem('lw.name')) || 'you',
     influence: 6400,
     xp: 1250,
     chaosXp: 0,
@@ -221,6 +227,10 @@ export const useWorld = create<WorldState>((set, get) => ({
     typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches,
   muted: false,
   glitchTick: 0,
+  named: !!(typeof localStorage !== 'undefined' && localStorage.getItem('lw.name')),
+  online: 0,
+  connected: false,
+  serverName: null,
 
   finishBoot: () => set({ screen: 'guide' }),
   openGuide: () => set({ screen: 'guide', panel: 'none' }),
@@ -351,6 +361,11 @@ export const useWorld = create<WorldState>((set, get) => ({
   togglePanel: (p) => set((s) => ({ panel: s.panel === p ? 'none' : p })),
   toggleMute: () => set((s) => ({ muted: !s.muted })),
   glitch: () => set((s) => ({ glitchTick: s.glitchTick + 1 })),
+  setName: (name) => {
+    try { localStorage.setItem('lw.name', name) } catch { /* private mode */ }
+    set((s) => ({ named: true, viewer: { ...s.viewer, name } }))
+  },
+  setNet: (p) => set((s) => ({ connected: p.connected ?? s.connected, online: p.online ?? s.online, serverName: p.serverName === undefined ? s.serverName : p.serverName })),
   say: (text) => {
     const t = text.trim()
     if (!t) return

@@ -181,8 +181,8 @@ export function WorldScene() {
     <>
       <color attach="background" args={['#070605']} />
       <fog attach="fog" args={['#070605', 4, 26]} />
-      <ambientLight intensity={0.18} color="#8a7c6a" />
-      <hemisphereLight args={['#3a2f26', '#050403', 0.35]} />
+      <ambientLight intensity={0.34} color="#9ab8b0" />
+      <hemisphereLight args={["#3f4a5a", "#0a0806", 0.7]} />
       <Corridor />
       <Fixtures beat={beat} />
       <Door ref={doorRef} />
@@ -249,8 +249,8 @@ function Corridor() {
       {[-1, 1].map((side) => (
         <group key={side}>
           <mesh position={[side * (WALL_X - 0.02), 1.25, -5]} rotation-y={side > 0 ? -Math.PI / 2 : Math.PI / 2}>
-            <boxGeometry args={[20, 0.05, 0.03]} />
-            <meshStandardMaterial color="#5b3a2e" roughness={0.6} />
+            <boxGeometry args={[20, 0.035, 0.03]} />
+            <meshStandardMaterial color="#2ee6ff" emissive="#2ee6ff" emissiveIntensity={1.6} roughness={0.4} />
           </mesh>
           <mesh position={[side * (WALL_X - 0.04), 0.09, -5]} rotation-y={side > 0 ? -Math.PI / 2 : Math.PI / 2}>
             <boxGeometry args={[20, 0.18, 0.06]} />
@@ -298,7 +298,7 @@ function Corridor() {
       {/* hazard stripe */}
       <mesh rotation-x={-Math.PI / 2} position={[0, 0.006, DOOR_Z + 1.1]}>
         <planeGeometry args={[WALL_X * 2, 0.16]} />
-        <meshStandardMaterial color="#d1a955" emissive="#d1a955" emissiveIntensity={0.12} roughness={0.9} />
+        <meshStandardMaterial color="#f6ff4d" emissive="#f6ff4d" emissiveIntensity={0.9} roughness={0.9} />
       </mesh>
     </group>
   )
@@ -322,7 +322,7 @@ function Fixtures({ beat }: { beat: React.RefObject<Beat> }) {
     zs.forEach((_, i) => {
       const n = Math.sin(t * 17 + seed.current[i]) * Math.sin(t * 5.3 + seed.current[i] * 2)
       const flick = n > 0.55 - chaos * 0.35 ? 0.25 : 1
-      const base = 16 * flick * (1 - b.dim * 0.8)
+      const base = 24 * flick * (1 - b.dim * 0.8)
       tmp.copy(warm).lerp(red, b.red)
       const l = lights.current[i]
       const m = tubes.current[i]?.material as THREE.MeshStandardMaterial | undefined
@@ -375,8 +375,8 @@ const Door = ({ ref }: { ref: React.RefObject<THREE.Group | null> }) => {
       <mesh position={[0, 2.37, 0]} castShadow><boxGeometry args={[1.62, 0.14, 0.24]} /><meshStandardMaterial color="#2c2622" roughness={0.6} metalness={0.4} /></mesh>
       {/* door lamp */}
       <mesh position={[0, 2.55, 0.12]}><boxGeometry args={[0.3, 0.1, 0.12]} /><meshStandardMaterial color="#2b2622" metalness={0.6} roughness={0.4} /></mesh>
-      <mesh position={[0, 2.49, 0.15]}><sphereGeometry args={[0.035, 10, 10]} /><meshStandardMaterial color="#fff" emissive={OXBLOOD} emissiveIntensity={4} /></mesh>
-      <pointLight position={[0, 2.4, 0.4]} intensity={2.5} distance={3} color={OXBLOOD} />
+      <mesh position={[0, 2.49, 0.15]}><sphereGeometry args={[0.035, 10, 10]} /><meshStandardMaterial color="#fff" emissive="#ff3df0" emissiveIntensity={5} /></mesh>
+      <pointLight position={[0, 2.4, 0.4]} intensity={6} distance={4} color="#ff3df0" />
       {/* hinged leaf */}
       <group ref={ref} position={[-0.66, 0, 0]}>
         <mesh position={[0.66, 1.15, 0]} castShadow receiveShadow>
@@ -409,7 +409,7 @@ const Door = ({ ref }: { ref: React.RefObject<THREE.Group | null> }) => {
         </mesh>
         <mesh position={[0.66, 2.0, 0.045]}>
           <planeGeometry args={[0.5, 0.14]} />
-          <meshStandardMaterial color="#d1a955" emissive="#d1a955" emissiveIntensity={0.08} roughness={0.9} />
+          <meshStandardMaterial color="#3dffb4" emissive="#3dffb4" emissiveIntensity={0.8} roughness={0.9} />
         </mesh>
       </group>
     </group>

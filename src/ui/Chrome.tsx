@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import { useWorld, currentWorld, currentLoop, rankFor } from '../store/world'
 import type { ChatMsg } from '../store/world'
+import { net } from '../engine/net'
 
 export function fmt(sec: number) {
   const s = Math.max(0, Math.ceil(sec))
@@ -45,7 +46,7 @@ export function BottomBar() {
     <footer className="bar bottom">
       <span>{'{$}'} {s.viewer.influence.toLocaleString()} · XP {s.viewer.xp.toLocaleString()}</span>
       <span className="mid faint">{hints}</span>
-      <span>{s.screen === 'world' ? `[ - ${s.viewers.toLocaleString()} watching - ]` : '[ - liveworld - ]'}</span>
+      <span>{s.screen === 'world' ? `[ - ${s.online ? `${s.online} here · ` : ''}${s.viewers.toLocaleString()} watching - ]` : s.connected ? `[ - ${s.online} in the lobby - ]` : '[ - liveworld - ]'}</span>
     </footer>
   )
 }
@@ -122,12 +123,14 @@ export function RightCol() {
 
 function ChatCol() {
   const chat = useWorld((s) => s.chat)
-  const say = useWorld((s) => s.say)
+  const online = useWorld((s) => s.online)
+  const connected = useWorld((s) => s.connected)
   const [text, setText] = useState('')
+  const say = (t: string) => net.say(t)
   return (
     <aside className="col right">
       <div className="chatcol">
-        <span className="k">Room</span>
+        <span className="k online" data-on={connected}><i />Room · {connected ? `${online} here` : 'offline · simulated'}</span>
         <div className="chatlog">
           {chat.slice(-30).map((m) => <Msg key={m.id} m={m} />)}
         </div>

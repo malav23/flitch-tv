@@ -20,6 +20,7 @@ const SLOTS: { p: [number, number, number]; r: number; s: number }[] = [
   { p: [-1.15, 1.36, -0.05], r: 0.05, s: 0.92 },
   { p: [0.12, 1.4, -0.1], r: 0.02, s: 0.96 },
   { p: [1.35, 1.34, -0.02], r: -0.06, s: 0.9 },
+  { p: [0.1, 2.2, -0.15], r: 0.04, s: 0.84 },
 ]
 
 export function GuideScene() {
@@ -62,7 +63,8 @@ export function GuideScene() {
     <>
       <color attach="background" args={['#000']} />
       <fog attach="fog" args={['#000', 5, 14]} />
-      <ambientLight intensity={0.14} color="#9aa5b5" />
+      <ambientLight intensity={0.32} color="#9ab8b0" />
+      <pointLight position={[0, 3.2, 2.5]} intensity={6} distance={9} color="#3dffb4" />
       {worlds.slice(0, SLOTS.length).map((w, i) => (
         <CRT key={w.id} slot={SLOTS[i]} color={w.poster} on={i === index} seed={i} />
       ))}
@@ -131,7 +133,7 @@ function CRT({ slot, color, on, seed }: { slot: { p: [number, number, number]; r
       const shift = tear >= 0 && Math.abs(y - tear) < 4 ? Math.floor((Math.random() - 0.5) * 20) : 0
       for (let x = 0; x < w; x++) {
         const n = Math.random()
-        const base = 0.08 + n * 0.32 * (0.5 + g * 0.5)
+        const base = 0.14 + n * 0.42 * (0.5 + g * 0.5)
         const xx = ((x + shift) % w + w) % w
         const i = (y * w + xx) * 4
         // colour glare drifting diagonally, like a rainbow bloom on a tube
@@ -149,7 +151,7 @@ function CRT({ slot, color, on, seed }: { slot: { p: [number, number, number]; r
     tex.needsUpdate = true
     if (light.current) {
       light.current.intensity = 0.8 + g * 14 + (g > 0.5 && Math.random() > 0.9 ? 1.5 : 0)
-      light.current.color.copy(tint).lerp(new THREE.Color('#9aa5b5'), 1 - g)
+      light.current.color.copy(tint).lerp(new THREE.Color("#7fd9c8"), 1 - g)
     }
     if (led.current) (led.current.material as THREE.MeshStandardMaterial).emissiveIntensity = g > 0.5 ? 4 : 0.6 + Math.sin(t * 2 + seed) * 0.3
   })
