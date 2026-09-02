@@ -7,16 +7,17 @@ import { useRemote } from './hooks/useRemote'
 import { GuideScene } from './scenes/GuideScene'
 import { WorldScene } from './scenes/WorldScene'
 import { Boot } from './ui/Boot'
-import { Guide } from './ui/Guide'
+import { GuideOverlay } from './ui/Guide'
 import { Hud } from './ui/Hud'
 import { Panel } from './ui/Panel'
 import { Studio } from './ui/Studio'
+import { TopBar, BottomBar, LeftCol, RightCol, GlitchSlices } from './ui/Chrome'
 
 function useAudioDirector() {
   useEffect(() => {
     let lastPhase = useWorld.getState().phase
     let lastSecond = -1
-    const unsub = useWorld.subscribe((s) => {
+    return useWorld.subscribe((s) => {
       audio.setTension(s.chaos * 0.6 + (s.phase === 'anticipation' ? 0.4 * (1 - s.timeLeft / 40) : 0), s.screen === 'world')
       if (s.phase !== lastPhase) {
         if (s.phase === 'reveal') audio.impact()
@@ -28,7 +29,6 @@ function useAudioDirector() {
         if (sec !== lastSecond) { audio.tick(); lastSecond = sec }
       }
     })
-    return unsub
   }, [])
 }
 
@@ -41,17 +41,27 @@ export default function App() {
 
   return (
     <>
-      <div className="stage">
-        <Canvas shadows dpr={[1, 1.75]} camera={{ fov: 60, near: 0.1, far: 80, position: [0, 0.4, 9] }} gl={{ antialias: false, powerPreference: 'high-performance' }}>
-          <Suspense fallback={null}>{screen === 'world' ? <WorldScene /> : <GuideScene />}</Suspense>
-        </Canvas>
+      <div className="app">
+        <TopBar />
+        <main className="grid">
+          <LeftCol />
+          <section className="frame" aria-label="Screen">
+            <div className="stage">
+              <Canvas shadows dpr={[1, 1.75]} camera={{ fov: 60, near: 0.1, far: 80, position: [0, 1, 5] }} gl={{ antialias: false, powerPreference: 'high-performance' }}>
+                <Suspense fallback={null}>{screen === 'world' ? <WorldScene /> : <GuideScene />}</Suspense>
+              </Canvas>
+            </div>
+            {screen === 'guide' && <GuideOverlay />}
+            {screen === 'world' && <Hud />}
+            <GlitchSlices />
+          </section>
+          <RightCol />
+        </main>
+        <BottomBar />
       </div>
       {screen === 'boot' && <Boot />}
-      {screen === 'guide' && <Guide />}
-      {screen === 'world' && <Hud />}
       {screen === 'studio' && <Studio />}
       {panel !== 'none' && <Panel />}
-      <div className="glass" aria-hidden />
     </>
   )
 }

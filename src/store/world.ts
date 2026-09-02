@@ -101,6 +101,7 @@ interface WorldState {
   panel: Panel
   reducedMotion: boolean
   muted: boolean
+  glitchTick: number
 
   // actions
   finishBoot: () => void
@@ -117,6 +118,8 @@ interface WorldState {
   setPanel: (p: Panel) => void
   togglePanel: (p: Panel) => void
   toggleMute: () => void
+  glitch: () => void
+  say: (text: string) => void
   pushChat: (m: Omit<ChatMsg, 'id'>) => void
   toast: (t: Omit<Toast, 'id'>) => void
   dismissToast: (id: number) => void
@@ -217,11 +220,12 @@ export const useWorld = create<WorldState>((set, get) => ({
   reducedMotion:
     typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches,
   muted: false,
+  glitchTick: 0,
 
   finishBoot: () => set({ screen: 'guide' }),
   openGuide: () => set({ screen: 'guide', panel: 'none' }),
   moveGuide: (delta) =>
-    set((s) => ({ guideIndex: (s.guideIndex + delta + s.worlds.length) % s.worlds.length })),
+    set((s) => ({ guideIndex: (s.guideIndex + delta + s.worlds.length) % s.worlds.length, glitchTick: s.glitchTick + 1 })),
 
   enterWorld: (id) => {
     const s = get()
@@ -229,6 +233,7 @@ export const useWorld = create<WorldState>((set, get) => ({
     if (!world) return
     const loop = world.loops[0]
     set({
+      glitchTick: s.glitchTick + 1,
       screen: 'world',
       worldId: world.id,
       loopIndex: 0,
@@ -256,7 +261,7 @@ export const useWorld = create<WorldState>((set, get) => ({
     })
   },
 
-  leaveWorld: () => set({ screen: 'guide', worldId: null, panel: 'none' }),
+  leaveWorld: () => set((s) => ({ screen: 'guide', worldId: null, panel: 'none', glitchTick: s.glitchTick + 1 })),
   openStudio: () => set({ screen: 'studio', panel: 'none' }),
 
   launchWorld: (w) => {
@@ -332,6 +337,7 @@ export const useWorld = create<WorldState>((set, get) => ({
       interruptAvailable: null,
       interruptWindow: 0,
       generation: 'queued',
+      glitchTick: s.glitchTick + 1,
       chaos: clamp(s.chaos + 0.25),
       viewer: { ...s.viewer, influence: s.viewer.influence - it.cost },
       // Anticipation shortens: the reveal is coming.
@@ -344,6 +350,13 @@ export const useWorld = create<WorldState>((set, get) => ({
   setPanel: (p) => set({ panel: p }),
   togglePanel: (p) => set((s) => ({ panel: s.panel === p ? 'none' : p })),
   toggleMute: () => set((s) => ({ muted: !s.muted })),
+  glitch: () => set((s) => ({ glitchTick: s.glitchTick + 1 })),
+  say: (text) => {
+    const t = text.trim()
+    if (!t) return
+    get().pushChat({ name: 'you', text: t, tone: 'you' })
+    set((s) => ({ chaos: Math.min(1, s.chaos + 0.01) }))
+  },
 
   pushChat: (m) =>
     set((s) => ({ chat: [...s.chat, { ...m, id: nid() }].slice(-60) })),
@@ -475,6 +488,7 @@ export const useWorld = create<WorldState>((set, get) => ({
             elapsed: 0,
             outcome,
             generation: 'ready',
+            glitchTick: s.glitchTick + 1,
           })
           chaos = clamp(chaos + 0.15)
         }

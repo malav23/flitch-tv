@@ -3,7 +3,6 @@ import gsap from 'gsap'
 import { useWorld } from '../store/world'
 import { HORROR_LOOPS } from '../data/worlds'
 import type { World } from '../data/worlds'
-import { TopBar } from './Chrome'
 
 interface Act { name: string; title: string; body: string; rule: string }
 
@@ -67,7 +66,6 @@ export function Studio() {
 
   return (
     <div className="studio">
-      <TopBar />
       <div className="studio-grid">
         <div>
           <h1>Create a live<br />experience<span>Describe tonight. The Director builds the loops.</span></h1>
